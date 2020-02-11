@@ -39,7 +39,7 @@ class RemoteFeedLoaderTest: XCTestCase {
     func test_load_deliversErrorOnClientError() {
         let (sut, client) = makeSUT()
         
-        expect(sut, toComleteWithError: .connectivity, when: {
+        expect(sut, toComleteWith: .failure(.connectivity), when: {
             let clientError = NSError(domain: "Test", code: 0)
             client.complete(with: clientError)
         })
@@ -50,7 +50,7 @@ class RemoteFeedLoaderTest: XCTestCase {
         
         let samples = [199, 201, 300, 400, 500]
         samples.enumerated().forEach { index, code in
-            expect(sut, toComleteWithError: .invalidData, when: {
+            expect(sut, toComleteWith: .failure(.invalidData), when: {
                 client.complete(withStatusCode: code, at: index)
             })
         }
@@ -59,7 +59,7 @@ class RemoteFeedLoaderTest: XCTestCase {
     func test_load_deliversAnErrorOn200HTTPResponseWithInvalidJSON() {
         let (sut, client) = makeSUT()
         
-        expect(sut, toComleteWithError: .invalidData, when: {
+        expect(sut, toComleteWith: .failure(.invalidData), when: {
             let invalidJSON = Data(bytes: "Invalid json".utf8)
             client.complete(withStatusCode: 200, data: invalidJSON)
         })
@@ -67,23 +67,20 @@ class RemoteFeedLoaderTest: XCTestCase {
     
     func test_load_deliversNoItemsOn200HTTPResponseWIthEmptyJSONList() {
         let (sut, client) = makeSUT()
-
-        var capturedResults = [RemoteFeedLoader.Result]()
-        sut.load{ capturedResults.append($0) }
         
-        let emptyListJSON = Data(bytes: "{\"items\": []}".utf8)
-        
-        client.complete(withStatusCode: 200, data: emptyListJSON)
-        XCTAssertEqual(capturedResults, [.success([])])
+        expect(sut, toComleteWith: .success([]), when: {
+            let emptyListJSON = Data(bytes: "{\"items\": []}".utf8)
+            client.complete(withStatusCode: 200, data: emptyListJSON)
+        })
     }
     
     
     //MARK: - Helpers
-    private func expect(_ sut: RemoteFeedLoader, toComleteWithError error: RemoteFeedLoader.Error, when action: () -> Void, file: StaticString = #file, line: UInt = #line) {
+    private func expect(_ sut: RemoteFeedLoader, toComleteWith result: RemoteFeedLoader.Result, when action: () -> Void, file: StaticString = #file, line: UInt = #line) {
         var capturedResults = [RemoteFeedLoader.Result]()
         sut.load{ capturedResults.append($0) }
         action()
-        XCTAssertEqual(capturedResults, [.failure(error)], file: file, line: line)
+        XCTAssertEqual(capturedResults, [result], file: file, line: line)
     }
     
     private func makeSUT(url: URL = URL(string: "http://some-url.com")!) -> (sut: RemoteFeedLoader, client: HTTPClientSpy) {
