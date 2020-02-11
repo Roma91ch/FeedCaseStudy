@@ -41,8 +41,8 @@ public final class RemoteFeedLoader {
             
             switch response {
             case .success(let data, let response):
-                if let _ = try? JSONSerialization.jsonObject(with: data) {
-                    completion(.success([]))
+                if let root = try? JSONDecoder().decode(Root.self, from: data) {
+                    completion(.success(root.items))
                 } else {
                     completion(.failure(.invalidData))
                 }
@@ -51,4 +51,8 @@ public final class RemoteFeedLoader {
             }
         }
     }
+}
+
+private struct Root: Decodable {
+    let items: [FeedItem]
 }
