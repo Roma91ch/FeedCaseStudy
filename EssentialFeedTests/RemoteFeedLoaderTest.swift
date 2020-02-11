@@ -75,7 +75,7 @@ class RemoteFeedLoaderTest: XCTestCase {
         })
     }
     
-    func test_load_deliversItemsOn200HTTPResponseWithJSONItes() {
+    func test_load_deliversItemsOn200HTTPResponseWithJSONItems() {
         let (sut, client) = makeSUT()
         
         let item1 = makeItem(id: UUID(), imageURL: URL(string: "https://a-url.com")!)
