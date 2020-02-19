@@ -1,6 +1,6 @@
 //
-//  EssentialFeedAPIEndToEndTests.swift
-//  EssentialFeedAPIEndToEndTests
+//  LoadFeedFromRemoteUseCaseTests.swift
+//  LoadFeedFromRemoteUseCaseTests
 //
 //  Created by Roman Chopovenko on 18.02.2020.
 //  Copyright © 2020 romito. All rights reserved.
@@ -9,10 +9,9 @@
 import XCTest
 import EssentialFeed
 
-class EssentialFeedAPIEndToEndTests: XCTestCase {
+class LoadFeedFromRemoteUseCaseTests: XCTestCase {
 
     func test_endToEndTestServerGETFeedResult_matchesFixedTestAccountData() {
-        
         
         switch getFeedResult() {
         case let .success(items):
